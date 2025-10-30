@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=System Menu
+Comment=jgmenu application menu
+categories=Settings;System;
+Exec=jgmenu_run
+Icon=system-settings
+Comment=Uygulama Menüsü
+Terminal=false

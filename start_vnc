@@ -1,0 +1,126 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+termuxwm (X11 Pencere Yöneticisi) için VNC Başlatıcı
+
+GÜNCELLENDİ:
+
+1. 'tint2' çökmesini düzeltmek için 'tint2rc.fixed' kullanılıyor.
+
+2. Klavye kısayolları için 'sxhkd' başlatılıyor.
+
+3. xterm "cannot open display" hatasını çözmek için sxhkd'ye 'env' eklendi.
+
+--- Ayarlar ---
+
+export DISPLAY=:1
+WIDTH=1280
+HEIGHT=720
+PORT=5900
+
+--- Eski İşlemleri Temizle ---
+
+echo "Eski VNC ve X sunucuları sonlandırılıyor..."
+pkill -f "Xvfb $DISPLAY"
+pkill -f "x11vnc -display $DISPLAY"
+pkill -f "build/termuxwm"
+pkill -f "xterm"
+pkill -f "aterm"
+pkill -f "feh"
+pkill -f "tint2"
+pkill -f "jgmenu"
+pkill -f "sxhkd" # sxhkd'yi de temizle
+sleep 1
+
+--- 1. Sanal X Sunucusunu (Xvfb) Başlat ---
+
+echo "Sanal X Sunucusu (Xvfb) $DISPLAY üzerinde başlatılıyor..."
+Xvfb $DISPLAY -screen 0 ${WIDTH}x${HEIGHT}x24 +extension GLX +extension RANDR +extension RENDER -nolisten tcp &
+XVFB_PID=$!
+sleep 2
+
+--- 2. Pencere Yöneticimizi (termuxwm) Başlat ---
+
+WM_BINARY="./build/termuxwm"
+
+if [ -f "$WM_BINARY" ]; then
+   echo "termuxwm (Pencere Yöneticisi) $WM_BINARY yolundan başlatılıyor..."
+   $WM_BINARY &
+   WM_PID=$!
+else
+   echo "HATA: $WM_BINARY dosyası bulunamadı."
+   echo "Lütfen önce derleyin: meson setup build && ninja -C build"
+   kill $XVFB_PID
+   exit 1
+fi
+sleep 1
+
+--- 3. Arayüz Bileşenlerini Başlat (Taskbar ve Wallpaper) ---
+
+Arka plan resmi (feh ile)
+
+if command -v feh &> /dev/null; then
+   if [ -f "wallpaper.jpg" ]; then
+       echo "Arka plan (feh) ayarlanıyor..."
+       feh --no-fehbg --bg-scale wallpaper.jpg &
+   else
+       echo "Uyarı: 'wallpaper.jpg' bulunamadı."
+   fi
+else
+   echo "Uyarı: 'feh' kurulu değil. (pkg install feh)"
+fi
+
+Görev çubuğu (tint2 ile)
+
+*** DÜZELTME: Çökmeyen tint2rc.fixed dosyasını kullan ***
+
+TINT2_CONFIG="./tint2rc.fixed"
+if command -v tint2 &> /dev/null; then
+   if [ -f "$TINT2_CONFIG" ]; then
+       echo "Görev çubuğu (tint2) $TINT2_CONFIG ile başlatılıyor..."
+       tint2 -c $TINT2_CONFIG &
+   else
+       echo "Uyarı: $TINT2_CONFIG dosyası bulunamadı. (Önceki adımdaki dosyayı 'tint2rc.fixed' olarak kaydettiğinizden emin olun). Varsayılan tint2 ayarları kullanılacak."
+       tint2 &
+   fi
+else
+   echo "Uyarı: 'tint2' kurulu değil. (pkg install tint2)"
+fi
+
+--- 4. Kısayol Yöneticisini (sxhkd) Başlat ---
+
+*** YENİ: Kısayolların çalışması için bu GEREKLİDİR ***
+
+SXHKD_CONFIG="./sxhkdrc"
+if command -v sxhkd &> /dev/null; then
+   if [ -f "$SXHKD_CONFIG" ]; then
+       echo "Kısayol yöneticisi (sxhkd) $SXHKD_CONFIG ile başlatılıyor..."
+       # *** DÜZELTME: "cannot open display" hatasını önlemek için 'env' komutu eklendi ***
+       env DISPLAY=$DISPLAY sxhkd -c $SXHKD_CONFIG &
+   else
+       echo "Uyarı: $SXHKD_CONFIG dosyası bulunamadı. Kısayollar ÇALIŞMAYACAK."
+   fi
+else
+   echo "Uyarı: 'sxhkd' kurulu değil. (pkg install sxhkd)"
+fi
+
+--- 5. VNC Sunucusunu (x11vnc) Başlat ---
+
+echo "VNC Sunucusu (x11vnc) 0.0.0.0:$PORT adresinde paylaşılıyor..."
+echo "Parola Koruması YOK (-nopw)."
+echo "CTRL+C ile durdurabilirsiniz."
+
+unset WAYLAND_DISPLAY
+x11vnc -display $DISPLAY -nopw -forever -listen 0.0.0.0 -rfbport $PORT
+
+--- Temizlik ---
+
+echo "VNC sunucusu durdu. Xvfb, termuxwm ve diğer bileşenler sonlandırılıyor..."
+kill $XVFB_PID
+kill $WM_PID
+pkill feh
+pkill tint2
+pkill sxhkd # sxhkd'yi durdur
+pkill xterm
+pkill aterm
+pkill jgmenu
+echo "Temizlik tamamlandı."

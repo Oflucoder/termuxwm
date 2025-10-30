@@ -1,0 +1,11 @@
+# Alt + Return ile terminal başlat
+alt + Return
+env DISPLAY=:1 /data/data/com.termux/files/usr/bin/xterm || env DISPLAY=:1 /data/data/com.termux/files/usr/bin/aterm
+
+# Ctrl + m ile menü başlat
+control + m
+env DISPLAY=:1 /data/data/com.termux/files/usr/bin/jgmenu_run
+
+# Sağ tık menüsü (bu hâlâ çalışmayabilir)
+@button3
+env DISPLAY=:1 /data/data/com.termux/files/usr/bin/jgmenu_run
