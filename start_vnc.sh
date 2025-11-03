@@ -1,140 +1,123 @@
 #!/data/data/com.termux/files/usr/bin/bash
+echo "Starting TermuxWM v0.8 (XSDL + Fast Mode + DBus + HW Accel + VNC)"
 
-#termuxwm VNC Baslatici
+cd ~/termuxwm || exit 1
 
-#GUNCELLEME:
-
-#1. tint2rc.fixed kullaniliyor.
-
-#2. sxhkd baslatiliyor.
-
-#3. sxhkdrc dosyasinin tam yol ve DISPLAY=:1 icermesi gerekir.
-
-#--- Ayarlar ---
-
-export DISPLAY=:1
+# === CONFIGURATION ===
+export DISPLAY=:0
 WIDTH=1920
 HEIGHT=1080
 PORT=5900
-export G_SLICE=always-malloc
-#--- Eski Islemleri Temizle ---
+VNC_PASSWD_FILE="$HOME/.vnc/passwd"
 
-echo "Eski VNC ve X sunuculari sonlandiriliyor..."
-pkill -f "Xvfb $DISPLAY"
+# === KILL OLD PROCESSES ===
+echo "[*] Killing old processes..."
 pkill -f "x11vnc -display $DISPLAY"
 pkill -f "build/termuxwm"
-pkill -f "xterm"
-pkill -f "aterm"
-pkill -f "feh"
-pkill -f "tint2"
-pkill -f "jgmenu"
 pkill -f "sxhkd"
+pkill -f "lxqt-panel"
+pkill -f "tint2"
+pkill -f "pcmanfm --desktop"
 sleep 1
 
-#--- 1. Sanal X Sunucusunu (Xvfb) Baslat ---
+# === SET X DISPLAY SIZE VIA XRANDR ===
+if command -v xrandr &>/dev/null; then
+    echo "[*] Setting display size to ${WIDTH}x${HEIGHT}..."
+    xrandr --fb ${WIDTH}x${HEIGHT} 2>/dev/null || echo "[WW] xrandr failed; screen may not resize."
+else
+    echo "[WW] xrandr not installed. Install with: pkg install x11-utils"
+fi
 
-echo "Sanal X Sunucusu (Xvfb) $DISPLAY uzerinde baslatiliyor..."
-Xvfb $DISPLAY -screen 0 ${WIDTH}x${HEIGHT}x24 +extension GLX +extension RANDR +extension RENDER -nolisten tcp &
-XVFB_PID=$!
-sleep 2
-
-#--- 2. Pencere Yoneticimizi (termuxwm) Baslat ---
-
+# === START WINDOW MANAGER UNDER DBUS ===
 WM_BINARY="./build/termuxwm"
-
-if [ -f "$WM_BINARY" ]; then
-echo "termuxwm $WM_BINARY yolundan baslatiliyor..."
-$WM_BINARY &
-WM_PID=$!
-else
-echo "HATA: $WM_BINARY dosyasi bulunamadi."
-echo "Lutfen once derleyin: meson setup build && ninja -C build"
-kill $XVFB_PID
-exit 1
-fi
-sleep 1
-
-#--- 3. Arayuz Bilesenlerini Baslat ---
-
-#Arka plan (feh)
-
-if command -v feh &> /dev/null; then
-if [ -f "wallpaper.jpg" ]; then
-echo "Arka plan (feh) ayarlaniyor..."
-feh --no-fehbg --bg-scale wallpaper.jpg &
-else
-echo "Uyari: 'wallpaper.jpg' bulunamadi."
-fi
-else
-echo "Uyari: 'feh' kurulu degil."
+if [ ! -f "$WM_BINARY" ]; then
+    echo "[EE] Executable not found under $WM_BINARY"
+    echo "Run: meson setup build --prefix=\$PREFIX && ninja -C build"
+    exit 1
 fi
 
-#Gorev cubugu (tint2)
+echo "[*] Launching TermuxWM under dbus-run-session..."
+dbus-run-session bash -c "
+    # === Termux Ortam Degiskenlerini Ayarla ===
+    export PATH=/data/data/com.termux/files/usr/bin:\$PATH
+    export XDG_DATA_DIRS=/data/data/com.termux/files/usr/share
 
-#TINT2_CONFIG="./tint2rc"
-#if command -v tint2 &> /dev/null; then
-#if [ -f "$TINT2_CONFIG" ]; then
-#echo "#Gorev cubugu (tint2) $TINT2_CONFIG ile baslatiliyor..."
-#export G_SLICE=always-malloc &&
-#tint2 -c $TINT2_CONFIG &
-#else
-#echo "Uyari: $TINT2_CONFIG bulunamadi. Varsayilan kullanilacak."
-#export G_SLICE=always-malloc &&
-#tint2 &
-#fi
-#else
-#echo "Uyari: 'tint2' kurulu degil."
-#fi
+    $WM_BINARY &
+    WM_PID=\$!
 
-# Yeni lxpanel kısmı:
-# Görev çubuğu (lxpanel) başlatılıyor...
-if command -v lxqt-panel &> /dev/null; then
-    echo "Görev çubuğu (lxpanel) başlatılıyor..."
-    # lxpanel, genellikle kendi yapılandırma dosyasını kullanır.
-    # TERMUX_WM_HOME değişkeni, lxpanel'in yapılandırma dizinini belirleyebilir.
-    # Varsa kullan, yoksa $HOME kullanılır.
-    export TERMUX_WM_HOME=$HOME
-    lxqt-panel &
+    # === HOTKEYS ===
+    SXHKDRC_FILE='./sxhkdrc'
+    if command -v sxhkd &>/dev/null; then
+        if [ -f \"\$SXHKDRC_FILE\" ]; then
+            echo '[+] sxhkd starting...'
+            sxhkd -c \"\$SXHKDRC_FILE\" &
+        else
+            echo '[WW] sxhkdrc not found. Shortcuts unavailable.'
+        fi
+    else
+        echo '[EE] sxhkd not found. pkg install sxhkd'
+    fi
+
+    # === WALLPAPER / DESKTOP (ONCE BASLAT) ===
+    if command -v pcmanfm &>/dev/null; then
+        echo '[+] pcmanfm (desktop manager) starting...'
+        pcmanfm --desktop &
+    elif command -v feh &>/dev/null; then
+        if [ -f 'wallpaper.jpeg' ]; then
+            echo '[+] feh setting wallpaper...'
+            feh --no-fehbg --bg-scale wallpaper.jpeg &
+        else
+            echo '[WW] wallpaper.jpeg missing. Expect black background.'
+        fi
+    else
+        echo '[EE] Neither feh nor pcmanfm found. pkg install feh or pcmanfm'
+    fi
+    
+    # === pcmanfm'in autostart'ina sans ver ===
+    echo '[II] Waiting 2s for pcmanfm autostart...'
+    sleep 2 
+
+    # === TASKBAR / PANEL (SONRA KONTROL ET) ===
+    if command -v tint2 &>/dev/null; then
+        # Simdi kontrol et: pcmanfm 'tint2'yi baslatti mi?
+        if ! pgrep -x "tint2" > /dev/null; then
+            echo '[+] Starting tint2 as a fallback...'
+            tint2 &
+        else
+            echo '[II] tint2 (panel) was successfully started by pcmanfm.'
+        fi
+    else
+        echo '[WW] tint2 not installed. Lutfen kurun: pkg install tint2'
+    fi
+
+    wait \$WM_PID
+" &
+DBUS_SESSION_PID=$!
+
+sleep 1 # Ana script icin kisa bir bekleme
+
+# === LAUNCH OPTIMIZED X11VNC ===
+echo "[*] Launching x11vnc..."
+# DÜZELTME: Değişken tanımlamalarındaki gereksiz '\' (ters eğik çizgi) karakterleri kaldırıldı.
+VNC_OPTS="-noxdamage -ncache 10 -ncache_cr -forever -shared -wait 2 -defer 5 -rfbwait 5000 -listen 0.0.0.0 -rfbport $PORT"
+
+if [ -f "$VNC_PASSWD_FILE" ]; then
+    echo "[+] VNC password found. Using secure mode."
+    VNC_OPTS="$VNC_OPTS -usepw"
 else
-    echo "Uyarı: 'lxqt-panel' kurulu değil."
+    echo "[WW] No VNC password file found. Running without password."
+    VNC_OPTS="$VNC_OPTS -nopw"
 fi
-# lxpanel bitiş
-
-
-
-
-
-#--- 4. Kisayol Yoneticisini (sxhkd) Baslat ---
-
-SXHKD_CONFIG="./sxhkdrc"
-if command -v sxhkd &> /dev/null; then
-if [ -f "$SXHKD_CONFIG" ]; then
-echo "Kisayol yoneticisi (sxhkd) $SXHKD_CONFIG ile baslatiliyor..."
-sxhkd -c $SXHKD_CONFIG &
-else
-echo "Uyari: $SXHKD_CONFIG bulunamadi. Kisayollar CALISMAYACAK."
-fi
-else
-echo "Uyari: 'sxhkd' kurulu degil."
-fi
-
-#--- 5. VNC Sunucusunu (x11vnc) Baslat ---
-
-echo "VNC Sunucusu (x11vnc) 0.0.0.0:$PORT adresinde paylasiliyor..."
-echo "Parola Korumasi YOK (-nopw)."
-echo "CTRL+C ile durabilirsiniz."
 
 unset WAYLAND_DISPLAY
-x11vnc -display $DISPLAY -nopw -forever -listen 0.0.0.0 -rfbport $PORT -cursor arrow -repeat -rfbwait 20000 -noxinerama -noxdamage -noxfixes -nocursorshape -noscr -noxrecord
-#--- Temizlik ---
+# DÜZELTME: Değişken, kabuk tarafından doğru şekilde genişletilebilmesi için tırnak işaretleri OLMADAN çağrılmalıdır.
+x11vnc $VNC_OPTS
 
-echo "VNC sunucusu durdu. Tum bilesenler sonlandiriliyor..."
-kill $XVFB_PID
-kill $WM_PID
-pkill feh
-pkill tint2
+# === CLEANUP ===
+echo "[*] VNC server stopped. Cleaning up..."
+kill $DBUS_SESSION_PID 2>/dev/null
 pkill sxhkd
-pkill xterm
-pkill aterm
-pkill jgmenu
-echo "Temizlik tamamlandi."
+pkill lxqt-panel
+pkill tint2
+pkill pcmanfm
+echo "[✓] Cleanup done. TermuxWM exited safely. Press enter to continue."
