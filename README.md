@@ -32,6 +32,9 @@ Build (jgmenu): git, make, libx11-dev, libxinerama-dev, libxrandr-dev, librsvg, 
 
 X Server: termux-x11-nightly (or termux-x11), xorg-server-xvfb
 
+The termux-x11 app : https://github.com/termux/termux-x11/releases 
+downlaod according to your arch
+
 VNC: x11vnc
 
 Desktop Components:
