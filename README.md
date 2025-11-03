@@ -71,21 +71,21 @@ jgmenu is a powerful alternative to dmenu and must be compiled from source.
 git clone [https://github.com/jgh/jgmenu.git](https://github.com/jgh/jgmenu.git)
 cd jgmenu
 make
-# Using the full path is safer than $PREFIX
+# Using the full path is safer than $PREFIX for jgmenu.
 make install PREFIX=/data/data/com.termux/files/usr
 cd ..
 
 
 Usage
 
-Open the termux-x11 application.
 
 Run the startup script from the Termux console:
 
-./start_vnc.sh
+termux-x11 -xstartup "./start_vnc.sh"
 
+Open the termux-x11 application or 
 
-Connect with a VNC client (e.g., RealVNC Viewer) to localhost:5900 (or your device's IP address).
+Connect with a VNC client (e.g., RealVNC Viewer on phone or TigerVNCviewer on PC) to localhost:5900 (or your device's IP address).
 
 Configuration
 
@@ -179,7 +179,7 @@ Gerekli Paketleri Kur:
 # Ana sistem
 pkg install meson ninja clang x11vnc tint2 pcmanfm sxhkd dmenu konsole xrandr xset
 
-# jgmenu derlemesi için (Opsiyonel)
+# jgmenu derlemesi için gereksinimler
 pkg install git make libx11-dev libxinerama-dev libxrandr-dev librsvg pango pkg-config
 
 
@@ -190,28 +190,27 @@ meson setup build --prefix=$PREFIX
 ninja -C build
 
 
-jgmenu'yü Kaynaktan Derle (Opsiyonel):
-jgmenu, dmenu'ye güçlü bir alternatiftir ve kaynaktan derlenmesi gerekir.
+jgmenu'yü Kaynaktan Derle (Opsiyonel,daha güvenli.):
+jgmenu, start menu için iyi bir alternatiftir. ve kaynaktan derlenmesi gerekir.
 
 git clone [https://github.com/jgh/jgmenu.git](https://github.com/jgh/jgmenu.git)
 cd jgmenu
 make
-# $PREFIX yerine tam yolu kullanmak daha güvenlidir
+$PREFIX yerine tam yolu kullanmak daha güvenlidir
 make install PREFIX=/data/data/com.termux/files/usr
 cd ..
 
 
-Kullanım
+Kullanıma
 
-termux-x11 uygulamasını açın.
 
 Termux konsolundan başlatma script'ini çalıştırın:
-
-./start_vnc.sh
-
+termux-x11 -xstartup "./start_vnc.sh"
+termux-x11 uygulamasını açın.
+veya,
 
 Bir VNC istemcisi (örn: RealVNC Viewer) ile localhost:5900 adresine (veya IP adresinize) bağlanın.
-
+..
 Yapılandırma
 
 Bu ortam üç ana yapılandırma dosyası tarafından yönetilir:
