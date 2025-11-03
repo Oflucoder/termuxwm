@@ -1,0 +1,10 @@
+alt + t	
+	/data/data/com.termux/files/usr/bin/konsole
+
+alt + r	
+        XDG_DATA_DIRS=/data/data/com.termux/files/usr/share \
+	/data/data/com.termux/files/usr/bin/dmenu_run
+
+#@button3	
+	#DISPLAY=:1 XDG_DATA_DIRS=/data/data/com.termux/files/usr/share /data/data/com.termux/files/usr/bin/jgmenu_run
+#remove the commenting if not gonna use pcmanfm

@@ -1,0 +1,37 @@
+panel_monitor = all
+panel_position = bottom center horizontal
+panel_size = 100% 28
+panel_margin = 0 0
+panel_padding = 6 2
+panel_layer = top
+panel_dock = 1
+font_shadow = 0
+panel_background_id = 1
+wm_menu = 0
+
+panel_items = LSC
+
+
+rounded = 3
+border_width = 1
+border_color = #444444
+background_color = #222222
+
+
+time1_format = %H:%M
+time2_format = %A %d %B
+clock_font_color = #FFFFFF
+clock_padding = 6 2
+clock_background_id = 0
+
+
+launcher_padding = 2 4 2
+launcher_background_id = 0
+launcher_icon_size = 24
+launcher_icon_theme = Papirus
+launcher_item_app = /data/data/com.termux/files/usr/share/applications/jgmenu.desktop
+
+
+tooltip_padding = 2 2
+tooltip_background_id = 5
+tooltip_font_color = #000000

@@ -1,0 +1,115 @@
+--- tint2 Yapılandırma (DÜZELTİLMİŞ) ---
+
+'BadDrawable' çökmesini önlemek için TÜM ŞEFFAFLIK (alpha)
+
+değerleri (renk sonundaki '100' gibi) kaldırıldı.
+
+panel_monitor = all
+panel_position = bottom center horizontal
+panel_size = 100% 28
+panel_margin = 0 0
+panel_padding = 6 2
+panel_layer = top
+panel_dock = 1
+font_shadow = 0
+panel_background_id = 1
+wm_menu = 0
+panel_items = LTSBC
+
+--- Arka Plan ---
+
+rounded = 3
+border_width = 1
+border_color = #444444
+background_color = #222222
+border_sides = T
+
+--- Görev Çubuğu (Taskbar) ---
+
+taskbar_mode = multi_desktop
+taskbar_padding = 2 2 2
+taskbar_background_id = 0
+task_icon = 1
+task_text = 0
+task_centered = 1
+task_maximum_size = 40 40
+task_padding = 2 2
+task_background_id = 2
+task_active_background_id = 3
+task_icon_asb = 100 0 0
+task_active_icon_asb = 100 0 0
+task_width = 40
+
+--- Sistem Tepsisi (Systray) ---
+
+systray_padding = 0 4 2
+systray_background_id = 0
+systray_sort = ascending
+systray_icon_size = 24
+systray_icon_asb = 100 0 0
+
+--- Saat (Clock) ---
+
+time1_format = %H:%M
+time2_format = %A %d %B
+clock_font_color = #FFFFFF
+clock_padding = 6 2
+clock_background_id = 0
+
+--- Batarya (Battery) ---
+
+battery_low_status = 10
+battery_hide = 98
+battery_font_color = #FFFFFF
+battery_padding = 1 0
+battery_background_id = 0
+
+--- Başlatıcı (Launcher) & jgmenu Butonu ---
+
+launcher_padding = 2 4 2
+launcher_background_id = 0
+launcher_icon_size = 24
+launcher_tooltip = 1
+launcher_icon_asb = 100 0 0
+launcher_icon_theme_override = 0
+launcher_icon_theme = Papirus
+launcher_item_app = ./jgmenu.desktop
+
+--- Tooltip (İpucu) ---
+
+tooltip_padding = 2 2
+tooltip_show_timeout = 0.5
+tooltip_hide_timeout = 0.1
+tooltip_background_id = 5
+tooltip_font_color = #000000
+
+--- Renk Şemaları (Background IDs) ---
+
+Arka Plan 1: Panel
+
+rounded = 3
+border_width = 1
+border_color = #444444
+background_color = #222222
+border_sides = T
+
+Arka Plan 2: Görev (Normal)
+
+rounded = 2
+border_width = 0
+border_color = #777777
+background_color = #444444
+
+Arka Plan 3: Görev (Aktif)
+
+rounded = 2
+border_width = 0
+border_color = #FFFFFF
+background_color = #777777
+
+Arka Plan 5: Tooltip
+
+rounded = 2
+border_width = 1
+border_color = #000000
+background_color = #FFFFFF

@@ -1,0 +1,16 @@
+# Build klasörleri
+/build/
+/builddir/
+#/meson-*/ 
+#*.o
+#*.a
+*.so
+*.log
+
+# Geçici dosyalar
+*.swp
+*.cache
+*.tmp
+
+# Termux özel dosyaları
+#/data/
