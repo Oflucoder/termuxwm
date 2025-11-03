@@ -1,4 +1,7 @@
-ENGLISH
+## ENGLISH
+
+
+
 TermuxWM v0.8
 
 TermuxWM is a fast, lightweight, and modern X11 Window Manager written in C, designed for use with termux-x11 on Android.
@@ -71,7 +74,7 @@ jgmenu is a powerful alternative to dmenu and must be compiled from source.
 git clone [https://github.com/jgh/jgmenu.git](https://github.com/jgh/jgmenu.git)
 cd jgmenu
 make
-# Using the full path is safer than $PREFIX for jgmenu.
+### Using the full path is safer than $PREFIX for jgmenu.
 make install PREFIX=/data/data/com.termux/files/usr
 cd ..
 
@@ -123,7 +126,10 @@ README.md: This file.
 
 
 
-TURKSIH
+## TURKISH
+
+
+
 TermuxWM v0.8
 
 TermuxWM, Android üzerinde termux-x11 ile kullanılmak üzere C dilinde yazılmış, hızlı, hafif ve modern bir X11 pencere yöneticisidir (Window Manager).
