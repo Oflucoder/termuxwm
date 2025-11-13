@@ -7,7 +7,7 @@ x11_dep = dependency('x11')
 # Ana programı (executable) oluştur
 executable('termuxwm',
   'src/main.c',
-  dependencies : [x11_dep]
+  dependencies : [x11_dep],
   install : true)
 
 # Loglama
