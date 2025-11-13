@@ -159,7 +159,7 @@ int main(void) {
                 case ClientMessage: handle_client_message(&ev.xclient); break;
             }
         }
-        usleep(5000); // CPU kullanımını azaltmak için
+        sleep(5000); // CPU kullanımını azaltmak için
     }
 
     XCloseDisplay(display);
